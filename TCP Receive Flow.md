@@ -41,3 +41,14 @@ When a socket is found, the packet will be processed based on the socket state (
 
 ### tcp_v4_do_recv
 This function accepts a socket and a socket buffer to handle either the `TCP_ESTABLISHED` or `TCP_LISTEN` states. 
+
+For `TCP_ESTABLISHED`, something is done to the `dst` demux field, unsure what. After that `tcp_rcv_established` is called to handle the packet.
+
+For `TCP_LISTEN` is different. The packet is run through `cookie_v4_check` to determine if it carries a valid SYN-cookie. If it is, a socket with cookie options is returned (three way handshake should be completed?) , else the socket will remain unchanged. If the socket is unchanged does not have valid cookie options, it is given to `tcp_rcv_state_process` for further handling.
+
+### tcp_recv_established
+TCP receive function for the `ESTABLISHED` state. This function will first check if header prediction should be done; check if the packet is 'next in sequence' rather than 'in the window', because the former should be faster. 
+
+Header prediction is done by checking if the header contains HP bits and if sequence number is the next to be received (+ some other things). 
+
+- If the segment length equals `tcp_header_len`, we know that it is an ACK, so we treat it as one, mening `ts_recent` timestamps are stored, the ACK is handled with `tcp_ack` and whether or not to send data is checked with `tcp_data_snd_check`.
