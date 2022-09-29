@@ -19,8 +19,25 @@ When creating an `AF_INET` socket with a `SOCK_STREAM`  type, the socket will be
 
 ![[Pasted image 20220926150756.png]]
 
-The kernel TCP components used in kernel space are defined by the `.protocol` field. Which references the following: 
+The `.protocol` field references the protocol handler for TCP:
 
 ![[Pasted image 20220926151842.png]]
 
-The key driver function here is the `.handler` which 
+The handler `tcp_v4_rcv`  in `tcp_ipv4.c` is the main driver for TCP as it is called to handle incoming data that is passed from the network layer. This entails both incoming application data, ACKs, and connection requests (SYN). 
+
+### tcp_v4_rcv
+This function accepts a socket buffer (`sk_buff` ) that contains the incoming packet. It runs the packet through various tests: it validates the packet type, header sizes, checksum, etc. If any of these fail, the packet will be discarded. 
+
+If the packet passes initial checks, the function will try to fetch a socket to associate the packet to. It does this by accessing hash tables based on the packet header information.
+
+![[Pasted image 20220928121555.png]]
+
+When a socket is found, the packet will be processed based on the socket state (RFC 9293):
+
+- `TIME_WAIT` : means that the host has received an ACK for a  `FIN`  packet. It now waits for the peer to send `FIN`. Its purpose is to close connections gracefully.
+- `TCP_NEW_SYN_RECV`: means that a `SYN` was previously recieved and that the socket is now waiting for an ACK for its own `SYN` request. After the packet has gone through some checks, `tcp_check_req` is called, which handles the re-transmission of the `SYN/ACK` or advances the connection state to `ESTABLISHED`.
+- `TCP_LISTEN` : means that the socket is waiting for a connection. `tcp_v4_do_recv` is called to handle this.
+- `TCP_ESTABLISHED`: represents an open connection, "business as usual" state. `tcp_v4_do_recv` also handles this case.
+
+### tcp_v4_do_recv
+This function accepts a socket and a socket buffer to handle either the `TCP_ESTABLISHED` or `TCP_LISTEN` states. 
