@@ -1,0 +1,6 @@
+- Gjøre så mye som mulig i modulen.
+- Modulen burde gjøre all state håndtering. tcp_output burde ha en callback til en func i modulen som fires når timeren går av. Modulen burde sende tilbake en struct eller liknende som sier om pakker skal sendes eller ei.
+- Cstate (intel power saving states) kan påvirke hvor nøyaktig en timer er. 
+- DupACKs må muligens fjernes på kernelnivå for å få kontroll på fast recovery/transmit.
+- Ftrace for printing uten performance penalty.
+- 

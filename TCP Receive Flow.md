@@ -1,4 +1,3 @@
-# TCP Receive Flow
 This document will detail an overview of the TCP receive flow in Linux.
 
 ## Sockets
@@ -52,3 +51,8 @@ TCP receive function for the `ESTABLISHED` state. This function will first check
 Header prediction is done by checking if the header contains HP bits and if sequence number is the next to be received (+ some other things). 
 
 - If the segment length equals `tcp_header_len`, we know that it is an ACK, so we treat it as one, mening `ts_recent` timestamps are stored, the ACK is handled with `tcp_ack` and whether or not to send data is checked with `tcp_data_snd_check`.
+
+### tcp_ack
+Checks if ACK is valid and in sequence, if not, the packet is discarded. If it is, `in_ack_event` from the current module is called to hook onto the event. Lastly, it checks whether or not we can retransmit packets. 
+
+**Keep in mind:** there are some recovery functionality here that may need replacing.
