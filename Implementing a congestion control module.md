@@ -1,4 +1,4 @@
-# Implementing a congestion control module
+
 This document will detail the implementation process along with general notes on how to implement a pluggable congestion control module in the Linux kernel. 
 
 ## TCP in the kernel

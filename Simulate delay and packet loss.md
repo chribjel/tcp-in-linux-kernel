@@ -1,4 +1,4 @@
-Delay and packet loss can be simulated by setting constants in `tc qdisc` for a given interface.
+do Delay and packet loss can be simulated by setting constants in `tc qdisc` for a given interface.
 
 The kernel must be compiled with `NET_SCHED` and `NET_SCH_NETEM`.
 
